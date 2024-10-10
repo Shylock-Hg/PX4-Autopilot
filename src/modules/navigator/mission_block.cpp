@@ -91,6 +91,7 @@ MissionBlock::is_mission_item_reached_or_completed()
 	case NAV_CMD_OBLIQUE_SURVEY:
 	case NAV_CMD_DO_SET_CAM_TRIGG_INTERVAL:
 	case NAV_CMD_SET_CAMERA_MODE:
+	case NAV_CMD_SET_CAMERA_SOURCE:
 	case NAV_CMD_SET_CAMERA_ZOOM:
 	case NAV_CMD_SET_CAMERA_FOCUS:
 	case NAV_CMD_DO_CHANGE_SPEED:
@@ -673,6 +674,10 @@ MissionBlock::mission_item_to_position_setpoint(const mission_item_s &item, posi
 		sp->acceptance_radius = _navigator->get_default_acceptance_radius();
 	}
 
+	// by default, FW guidance logic will take alt acceptance from NAV_FW_ALT_RAD, in some special cases
+	// we override it after this
+	sp->alt_acceptance_radius = NAN;
+
 	sp->cruising_speed = _navigator->get_cruising_speed();
 	sp->cruising_throttle = _navigator->get_cruising_throttle();
 
@@ -1026,6 +1031,7 @@ void MissionBlock::updateAltToAvoidTerrainCollisionAndRepublishTriplet(mission_i
 
 	if (_navigator->get_nav_min_gnd_dist_param() > FLT_EPSILON && _mission_item.nav_cmd != NAV_CMD_LAND
 	    && _mission_item.nav_cmd != NAV_CMD_VTOL_LAND && _mission_item.nav_cmd != NAV_CMD_DO_VTOL_TRANSITION
+	    && _mission_item.nav_cmd != NAV_CMD_IDLE
 	    && _navigator->get_local_position()->dist_bottom_valid
 	    && _navigator->get_local_position()->dist_bottom < _navigator->get_nav_min_gnd_dist_param()
 	    && _navigator->get_local_position()->vz > FLT_EPSILON
